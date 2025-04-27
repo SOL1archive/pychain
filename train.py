@@ -67,9 +67,6 @@ def main():
     model.print_trainable_parameters()
     model.enable_input_require_grads()
 
-    #ds_dict = load_dataset(dataset_path)['train'].shuffle(seed=42).train_test_split(test_size=0.1, seed=42)
-    #train_ds = ds_dict['train']
-    #val_ds = ds_dict['test']
     train_ds = load_dataset(dataset_path)['train'].shuffle(seed=42)
     prompt_formatter = PromptFormatter(
         instruction_col_name='problem',
@@ -85,11 +82,6 @@ def main():
         gradient_checkpointing=config.gradient_checkpoint,
         num_train_epochs=config.num_epochs,
 
-        #do_eval=True,
-        #per_device_eval_batch_size=config.batch_size,
-        #eval_strategy='steps',
-        #eval_steps=1000,
-
         logging_first_step=0,
         logging_steps=1,
         report_to='wandb',
@@ -103,7 +95,6 @@ def main():
         model,
         training_args,
         train_dataset=train_ds,
-        #eval_dataset=val_ds,
         formatting_func=prompt_formatter,
     )
 
