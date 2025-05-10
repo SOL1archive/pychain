@@ -1,5 +1,6 @@
 import argparse
 from pathlib import Path
+from math import floor
 
 import torch
 import torch.nn as nn
@@ -67,20 +68,28 @@ def main():
     model.print_trainable_parameters()
     model.enable_input_require_grads()
 
-    train_ds = load_dataset(dataset_path)['train'].shuffle(seed=42)
+    train_ds = load_dataset(dataset_path, split='cot', streaming=config.streaming).shuffle(seed=42)
+    
     prompt_formatter = PromptFormatter(
         instruction_col_name='problem',
-        response_col_name='solution',
+        response_col_name='generated_solution',
         tokenizer=tokenizer,
         system_instruction='You are an thorough math problem solver. Inspect the problem, fine a solution and answer with detailed explanations.'
     )
+    
+    if config.streaming:
+        num_samples = config.num_samples
+    else:
+        num_samples = len(train_ds)
 
     training_args = SFTConfig(
-        max_seq_length=2048,
+        max_seq_length=config.max_seq_length,
+        max_steps=int(floor(num_samples // config.batch_size)),
         learning_rate=config.learning_rate,
         per_device_train_batch_size=config.batch_size,
         gradient_checkpointing=config.gradient_checkpoint,
         num_train_epochs=config.num_epochs,
+        lr_scheduler_type=config.scheduler_type,
 
         logging_first_step=0,
         logging_steps=1,

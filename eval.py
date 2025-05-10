@@ -12,7 +12,11 @@ merged_models_folder = "./models/"  # Folder containing your merged models
 subjects_to_evaluate = [
     "algebra",
     "counting_and_probability",
-    # Add more if needed
+    "geometry",
+    "intermediate_algebra",
+    "number_theory",
+    "prealgebra",
+    "precalculus",
 ]
 
 test_base_folder = "datasets/MATH/test"  # Path to your MATH test dataset
@@ -28,7 +32,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 # ===== Helper: Extract predicted answer =====
 def extract_answer(output_text):
     # Try to find boxed answer first
-    match = re.search(r"\\boxed{([^}]*)}", output_text)
+    match = re.search(r"\\boxed\{([\s\S]*?)\}\$", output_text)
     if match:
         return match.group(1).strip()
 
